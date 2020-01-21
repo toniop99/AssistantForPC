@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title class="text-center">Google Assistant for your PC!</title>
+
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+  </head>
+  <body>
+
+    <div class="p-3 container">
+  
+      <div id="alertContainerMoreInfo" style="display:none;">
+        <div id="alertMessage" class="alert alert-info alert-dismissable" role="alert">
+          <button id="hideMoreInfoAlert" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
+            &times;
+          </button>
+          <p>This function is not yet enabled!</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm">
+          <div class="card mb-4 text-center">
+            <div class="card-body">
+              <h4 class="card-title ">Welcome!</h4>
+              <p class="card-text">Here you will be able to set up some options about the program as the path of the services of the cloud,
+                or the path where the files will be executed. </p>
+              <p>You can also create your ouwn script and save them in the selected path.</p>
+              <a href="#" class="btn btn-info" id="buttonShowMoreInfo">Click for more information</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-8">
+          <div class="card mb-4 text-center">
+            <div class="card-body">
+              <h4 class="card-title ">Configuration</h4>
+
+              <div class="dropdown-divider"></div>
+
+              <div class="row">
+
+                <div class="col-sm">
+                  <p class="text-center font-weight-bold">Select the route of the cloud service(Dropbox/Google Drive)</p>
+                </div>
+              
+                <div class="col-sm">
+                  <input id="fileselectorCloud" type="file" webkitdirectory directory multiple="false" style="display:none" />
+                  <button id="fileselectorCloudButton" onclick="getElementById('fileselectorCloud').click()" class="btn btn-primary btn-lg btn-block">Select</button>
+                </div>
+        
+                <div class="col-sm-2">
+                  <a href="#"  class="text-warning" id="buttonDefaultCloud">Reset To Default</a>
+                </div>
+        
+              </div>
+              
+              <div class="text-center">
+                <p class="text-info" id="ActualtPathCloud"></p>
+                <h7 class="mb-4 text-danger font-weight-bold">
+                  Watch out! don't select a folder with files you don't want to delete </h7>
+              </div>
+        
+              <div class="dropdown-divider"></div>
+        
+              <div class="row">
+        
+                <div class="col-sm">
+                  <p class="text-center font-weight-bold">Select the route where the files will be executed</p>
+                </div>
+                
+                <div class="col-sm">
+                  <input id="fileselectorBat" type="file" webkitdirectory directory multiple="false" style="display:none" />
+                  <button onclick="getElementById('fileselectorBat').click()" class="btn btn-primary btn-lg btn-block">Select</button>
+                </div>
+        
+                <div class="col-sm-2">
+                  <a href="#"  class="text-warning" id="buttonDefaultBat">Reset To Default</a>
+                </div>
+              
+              </div>
+              <div class="text-center">
+                <p class="text-info" id="ActualPathBat"></p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div> 
+
+      <div class="row d-inline p-0 m-0">
+        <div id="alertContainerRestartApp" style="display:none;">
+          <div id="alertMessage1" class="alert alert-warning alert-dismissable" role="alert">
+            <div class="row">
+              <div class="col-sm-4">
+                <p>Restart the app to save the changes!</p>
+              </div>
+              <div class="col-sm-6">
+                <button id="buttonResetApp" type="button" class="btn btn-light btn-sm">Restart</button>
+              </div>
+              <div class="col-sm-2">
+                <button id="hideRestartAlert" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
+                  &times;
+                </button>
+              </div>
+            </div>  
+          
+          </div>
+        </div> 
+      </div>
+
+
+      <div class="input-group mt-3">
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Write the title of the file</span>
+          </div>
+  
+          <input type="text" id="batTitle" class="form-control" placeholder="example"> 
+        </div>
+  
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">Write here your commands</span>
+          </div>
+          
+          <textarea id="batText" class="form-control" aria-label="With textarea">START </textarea>
+          
+          <button class="btn btn-primary btn-block" type="button" id="saveBat">Save</button>
+        </div>
+  
+        <p class="text-danger text-center">The file will save in the current path for executed files. .bat extension is automatically set</p>
+      </div>
+
+      <div id="alertContainerBatSaved" style="display:none;">
+        <div id="alertMessage2" class="alert  alert-success alert-dismissable" role="alert">
+          <button id="hideBatSaved" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
+            &times; </button>
+          <p id="textToShowBatSaved"></p>
+        </div>
+      </div> 
+
+      <div class="row"> 
+        
+        <div class="col-sm-9">
+          <div class="form-check text-left d-inline">
+            <input class="form-check-input" type="checkbox" value="" id="startWithWindows">
+            <label class="form-check-label" for="startWithWindows"> Start with Windows? </label>
+          </div>
+        </div>
+
+        <div class="col-sm">
+          <p class="text-info text-right d-inline">Version 1.0.1</p>
+        </div>
+
+      </div>
+
+    </div>   
+
+    <!-- You can also require other files to run in this process -->
+    <script>
+      // https://github.com/electron/electron/issues/2863
+      require('../output/renderer.js');
+    </script>
+  </body>
+</html>
