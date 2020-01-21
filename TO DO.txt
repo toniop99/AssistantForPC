@@ -1,0 +1,11 @@
+1 - Read Dropbox API
+2 - Prepare a Test Application using the Dropbox API
+3 - Do another test app that read the content of a folder in dropbox, read the files and delete it.
+4 - Integrate the previous functions in a branch of the Assistant Control For PC project.
+
+5 - Change the main application to offer both options.
+	- Use the dropbox app on window and read the folders files on it.
+	- Read the folder and files directly from dropbox API.
+
+7 - Create a tutorial for the app.
+8 - Start with the Google Drive API.
