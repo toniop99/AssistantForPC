@@ -2,19 +2,21 @@ import { ipcRenderer, remote } from "electron";
 import log from "electron-log";
 import * as fs from "fs-extra";
 import * as path from "path";
-import { ConfigFile } from "./services/ConfigFile";
+import ConfigFile from "./services/ConfigFile";
 
 
 const configFile = new ConfigFile();
 
+function getCurrentPaths() {
+  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+}
+
 function onStart() {
-  if (configFile.getStartWithWindows() === true) {
+  if (configFile.getItemValue("startWithWindows")) {
     (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
   }
-
-  actualCloudPath();
-  actualBatPath();
-
+  getCurrentPaths();
 }
 onStart();
 
@@ -34,30 +36,18 @@ ipcRenderer.on("appInfo", (event, data) => {
   console.log(data);
 });
 
-
-/** SHOW MORE INFO ALERT */
-
-document.getElementById("hideMoreInfoAlert").addEventListener("click", () => {
-  hideMoreInfoAlert();
+ipcRenderer.on("openTutorial", (event, data) => {
+  data.tutorial;
 });
 
-document.getElementById("buttonShowMoreInfo").addEventListener("click", () => {
-  // tslint:disable-next-line: no-console
-  console.log(configFile.getPathConfigFile());
-  showMoreInfoAlert();
+/***** SHOW TUTORIAL *****/
+
+document.getElementById("showTutorial").addEventListener("click", () => {
+  showTutorial();
 });
 
-function showMoreInfoAlert() {
-  const alertContainer = (document.getElementById("alertContainerMoreInfo") as HTMLInputElement);
-  alertContainer.removeAttribute("style");
-  setTimeout(() => {
-    hideMoreInfoAlert();
-  }, 5000);
-}
-
-function hideMoreInfoAlert() {
-  const alertContainer = (document.getElementById("alertContainerMoreInfo") as HTMLInputElement);
-  alertContainer.setAttribute("style", "display:none;");
+function showTutorial() {
+  ipcRenderer.send("getTutorial");
 }
 
 /** ************************ */
@@ -67,44 +57,41 @@ function hideMoreInfoAlert() {
 
 document.getElementById("fileselectorCloud").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorCloud") as HTMLInputElement).files[0].path;
-  configFile.changePath("customDir.CloudPath", fileselector);
-  showRestartAlert();
+  configFile.changeConfig("customDir.CloudPath", fileselector);
+
+  ipcRenderer.send("changeCloudPath");
+
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
-  configFile.changePath("customDir.CloudPath", "");
-  showRestartAlert();
+  configFile.changeConfig("customDir.CloudPath", "");
+
+  ipcRenderer.send("changeCloudPath");
+
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
 
 document.getElementById("fileselectorBat").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorBat") as HTMLInputElement).files[0].path;
-  configFile.changePath("customDir.BatFilesPath", fileselector);
-  showRestartAlert();
+  configFile.changeConfig("customDir.BatFilesPath", fileselector);
+
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultBat").addEventListener("click", () => {
-  configFile.changePath("customDir.BatFilesPath", "");
-  showRestartAlert();
+  configFile.changeConfig("customDir.BatFilesPath", "");
+
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
-
-function actualCloudPath() {
-  const actualtPathCloud = (document.getElementById("ActualtPathCloud") as HTMLInputElement);
-  // tslint:disable-next-line: max-line-length
-  const pathCloud = configFile.existcustomDirCloudPath() ? configFile.getItemValue("customDir.CloudPath") : configFile.getItemValue("defaultDir.CloudPath");
-  const createText = document.createTextNode("Current Path: " + pathCloud);
-
-  actualtPathCloud.appendChild(createText);
-}
-
-function actualBatPath() {
-  const actualtPathBat = (document.getElementById("ActualPathBat") as HTMLInputElement);
-  // tslint:disable-next-line: max-line-length
-  const pathBat = configFile.existcustomDirBatFilesPath() ? configFile.getItemValue("customDir.BatFilesPath") : configFile.getItemValue("defaultDir.BatFilesPath");
-  const createText = document.createTextNode("Current Path: " + pathBat);
-
-  actualtPathBat.appendChild(createText);
-
-}
 
 /** ************************ */
 
@@ -206,9 +193,8 @@ document.getElementById("startWithWindows").addEventListener("change", () => {
 
 function startWithWindows() {
   const check = (document.getElementById("startWithWindows") as HTMLInputElement).checked;
-  configFile.startWithWindows(check);
+  configFile.changeConfig("startWithWindows", check);
   log.info("Start With Windows: " + check);
-  showRestartAlert();
 }
 
 function restartApp() {

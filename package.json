@@ -2,12 +2,12 @@
   "name": "google-assistant-control-pc",
   "version": "1.0.3",
   "description": "A program to make thing with google assistant",
-  "main": "./output/main.js",
+  "main": "./output/src/main.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "npm run build && electron ./output/main.js",
+    "start": "npm run build && electron ./output/src/main.js",
     "dist": "electron-builder"
   },
   "author": "Chapikas <granviamurcia2@gmail.com>",
@@ -42,6 +42,8 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "chokidar": "^3.3.1",
+    "dotenv": "^8.2.0",
+    "electron-handlebars": "^2.0.0",
     "electron-log": "^4.0.3",
     "electron-store": "^5.1.0",
     "fs-extra": "^8.1.0",

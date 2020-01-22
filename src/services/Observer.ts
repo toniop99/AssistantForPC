@@ -5,13 +5,12 @@ import * as EventEmitter from "events";
 import * as fsExtra from "fs-extra";
 import * as path from "path";
 
-import { ConfigFile } from "./ConfigFile";
+import ConfigFile from "./ConfigFile";
 
 
-export class Observer extends EventEmitter {
+export default class Observer extends EventEmitter {
     private cf = new ConfigFile();
     // tslint:disable-next-line: max-line-length
-    private batPath = this.cf.existcustomDirBatFilesPath() ? this.cf.getItemValue("customDir.BatFilesPath") : this.cf.getItemValue("defaultDir.BatFilesPath");
 
     constructor() {
         super();
@@ -36,7 +35,7 @@ export class Observer extends EventEmitter {
 
                     // Read content of new file
                     const fileContent = await fsExtra.readFile(filePath);
-                    this.openFile(path.join(this.batPath, fileContent + ".bat"));
+                    this.openFile(path.join(this.cf.getCurrentBatFolder(), fileContent + ".bat"));
 
 
                     // emit an event when new file has been added
@@ -68,4 +67,3 @@ export class Observer extends EventEmitter {
     }
 
 }
-

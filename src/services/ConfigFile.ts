@@ -2,11 +2,11 @@ import Store = require("electron-store");
 import * as os from "os";
 import * as path from "path";
 
-export class ConfigFile {
+export default class ConfigFile {
 
-    private configFile = new Store();
+    private static configFile = new Store();
 
-    private defaultConfigFile = {
+    private static defaultConfigFile = {
         defaultDir : {
             BatFilesPath : path.join(os.userInfo().homedir , "/Documents/GoogleAssistantBatFiles/"),
             CloudPath : path.join(os.userInfo().homedir , "/Dropbox/GoogleAssistant/"),
@@ -18,57 +18,65 @@ export class ConfigFile {
         },
 
         startWithWindows : true,
+        configuration : {
+            show: false,
+            useFolders: true,
+            useDropbox: false,
+        }
     };
 
     constructor() {
         // console.log(this.configFile.path);
-        // tslint:disable-next-line: max-line-length
-        if (!this.configFile.has("defaultDir") || !this.configFile.has("customDir")) {
+        if (!ConfigFile.configFile.has("defaultDir") || !ConfigFile.configFile.has("customDir")) {
             this.setDefaultConfig();
         }
-
     }
 
-    // tslint:disable-next-line: no-shadowed-variable
-    public changePath(nameToChange: string, path: string) {
-        this.configFile.set(nameToChange, path);
+    public changeConfig(key: string, value: any) {
+        ConfigFile.configFile.set(key, value);
         // console.log("Changed: " + this.configFile.get(nameToChange));
     }
 
-    public startWithWindows(value: boolean) {
-        this.configFile.set("startWithWindows", value);
-    }
-
-    public existcustomDirBatFilesPath(): boolean {
-        if (this.configFile.get("customDir.BatFilesPath") === "") {
-            return false;
-        }
-        return true;
-    }
-
-    public existcustomDirCloudPath(): boolean {
-        if (this.configFile.get("customDir.CloudPath") === "") {
-            return false;
-        }
-        return true;
-    }
-
-    public getItemValue(nameItem: string): string {
-        return this.configFile.get(nameItem);
-    }
-
-    public getStartWithWindows(): boolean {
-        return this.configFile.get("startWithWindows");
+    public getItemValue(nameItem: string): any {
+        return ConfigFile.configFile.get(nameItem);
     }
 
     public getPathConfigFile(): string {
-        return this.configFile.path;
+        return ConfigFile.configFile.path;
+    }
+
+    public getCurrentCloudFolder(): string {
+        if(this.existcustomDirCloudPath()){
+            return this.getItemValue("customDir.CloudPath");
+        }else {
+            return this.getItemValue("defaultDir.CloudPath");
+        }
+    }
+
+    public getCurrentBatFolder(): string {
+        if (this.existcustomDirBatFilesPath()){
+            return this.getItemValue("customDir.BatFilesPath");
+        } else {
+            return this.getItemValue("defaultDir.BatFilesPath");
+        }
+    }
+
+    public existcustomDirBatFilesPath(): boolean {
+        if (ConfigFile.configFile.get("customDir.BatFilesPath") === "") {
+            return false;
+        }
+        return true;
     }
 
     private setDefaultConfig() {
-        this.configFile.set(this.defaultConfigFile);
+        ConfigFile.configFile.set(ConfigFile.defaultConfigFile);
     }
 
-
+    private existcustomDirCloudPath(): boolean {
+        if (ConfigFile.configFile.get("customDir.CloudPath") === "") {
+            return false;
+        }
+        return true;
+    }
 
 }
