@@ -53,8 +53,12 @@ export default class ConfigFile {
         }
     }
 
-    private setDefaultConfig() {
-        ConfigFile.configFile.set(ConfigFile.defaultConfigFile);
+    public getCurrentBatFolder(): string {
+        if (this.existcustomDirBatFilesPath()){
+            return this.getItemValue("customDir.BatFilesPath");
+        } else {
+            return this.getItemValue("defaultDir.BatFilesPath");
+        }
     }
 
     public existcustomDirBatFilesPath(): boolean {
@@ -62,6 +66,10 @@ export default class ConfigFile {
             return false;
         }
         return true;
+    }
+
+    private setDefaultConfig() {
+        ConfigFile.configFile.set(ConfigFile.defaultConfigFile);
     }
 
     private existcustomDirCloudPath(): boolean {

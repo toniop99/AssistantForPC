@@ -26,8 +26,8 @@ export default class Main {
     // Variables used to the control of the app and the main window.
     private window: BrowserWindow = null;
     private tray: Tray = null;
-    private icon: string = path.join(__dirname, "../../public/images/icons/icon64.png");
-    private mainIndex: string = (path.join(__dirname, "../../public/index.hbs"));
+    private icon: string = path.join(__dirname, "../../../public/images/icons/icon64.png");
+    private mainIndex: string = (path.join(__dirname, "../../../public/index.hbs"));
 
     private canExit: boolean = false;
 
@@ -61,8 +61,8 @@ export default class Main {
     private observeFolder() {
         this.observer.on("file-added", (log) => {
             logFile.info(log.message);
-          });
-          this.observer.watchFolder(this.cloudFolder);
+        });
+        this.observer.watchFolder(this.cloudFolder);
     }
 
     // Function used to check if the app can start with the SO.
@@ -75,7 +75,7 @@ export default class Main {
             });
             // The app can start on login.
             return true;
-        }else {
+        } else {
             app.setLoginItemSettings({
                 openAtLogin: false,
             });
@@ -129,10 +129,10 @@ export default class Main {
             webPreferences: {
                 // devTools: false,
                 nodeIntegration: true,
-                preload: path.join(__dirname, "preload.js"),
+                preload: path.join(__dirname, "../preload.js"),
             },
-        }
-        
+        };
+
         // Create the window.
         this.window = new BrowserWindow(windowOptions);
         this.window.loadFile(this.mainIndex);
@@ -156,13 +156,6 @@ export default class Main {
             return false;
           });
 
-    }
-
-    public exitApp() {
-        this.canExit = true;
-        this.tray.destroy();
-        this.window = null;
-        app.quit();
     }
 
     // Function to create Tray
@@ -207,6 +200,7 @@ export default class Main {
     }
 
     // Function used to create the top menu used for all the windows.
+    // tslint:disable-next-line: member-ordering
     public createTopMenu() {
 
         const menu = Menu.buildFromTemplate([
@@ -234,6 +228,14 @@ export default class Main {
         ]);
 
         Menu.setApplicationMenu(menu);
+    }
+
+    // tslint:disable-next-line: member-ordering
+    public exitApp() {
+        this.canExit = true;
+        this.tray.destroy();
+        this.window = null;
+        app.quit();
     }
 
 }

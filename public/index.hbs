@@ -12,7 +12,7 @@
   
       <div id="alertContainerMoreInfo" style="display:none;">
         <div id="alertMessage" class="alert alert-info alert-dismissable" role="alert">
-          <button id="hideMoreInfoAlert" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
+          <button onclick="hideMoreInfoAlert()" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
             &times;
           </button>
           <p>This function is not yet enabled!</p>
@@ -27,7 +27,7 @@
               <p class="card-text">Here you will be able to set up some options about the program as the path of the services of the cloud,
                 or the path where the files will be executed. </p>
               <p>You can also create your ouwn script and save them in the selected path.</p>
-              <a href="#" class="btn btn-info" id="buttonShowMoreInfo">Click for more information</a>
+              <a href="#" class="btn btn-info" onclick="showMoreInfoAlert()">Click for more information</a>
             </div>
           </div>
         </div>
@@ -57,7 +57,7 @@
               </div>
               
               <div class="text-center">
-                <p class="text-info" id="ActualtPathCloud"></p>
+                <p class="text-info" id="actualtPathCloud"></p>
                 <h7 class="mb-4 text-danger font-weight-bold">
                   Watch out! don't select a folder with files you don't want to delete </h7>
               </div>
@@ -81,7 +81,7 @@
               
               </div>
               <div class="text-center">
-                <p class="text-info" id="ActualPathBat"></p>
+                <p class="text-info" id="actualPathBat"></p>
               </div>
 
             </div>
@@ -158,10 +158,12 @@
 
     </div>   
 
-    <!-- You can also require other files to run in this process -->
+    <script src="../output/public/javascripts/index.js"></script>
+
     <script>
       // https://github.com/electron/electron/issues/2863
-      require('../output/renderer.js');
+      require('../output/src/renderer.js');
     </script>
+
   </body>
 </html>

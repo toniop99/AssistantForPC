@@ -12,9 +12,8 @@ function onStart() {
     (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
   }
 
-  actualCloudPath();
-  actualBatPath();
-
+  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
 }
 onStart();
 
@@ -36,30 +35,6 @@ ipcRenderer.on("appInfo", (event, data) => {
 
 
 /** SHOW MORE INFO ALERT */
-
-document.getElementById("hideMoreInfoAlert").addEventListener("click", () => {
-  hideMoreInfoAlert();
-});
-
-document.getElementById("buttonShowMoreInfo").addEventListener("click", () => {
-  // tslint:disable-next-line: no-console
-  console.log(configFile.getPathConfigFile());
-  showMoreInfoAlert();
-});
-
-function showMoreInfoAlert() {
-  const alertContainer = (document.getElementById("alertContainerMoreInfo") as HTMLInputElement);
-  alertContainer.removeAttribute("style");
-  setTimeout(() => {
-    hideMoreInfoAlert();
-  }, 5000);
-}
-
-function hideMoreInfoAlert() {
-  const alertContainer = (document.getElementById("alertContainerMoreInfo") as HTMLInputElement);
-  alertContainer.setAttribute("style", "display:none;");
-}
-
 /** ************************ */
 
 
@@ -68,43 +43,36 @@ function hideMoreInfoAlert() {
 document.getElementById("fileselectorCloud").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorCloud") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.CloudPath", fileselector);
+
+  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+
   showRestartAlert();
 });
 
 document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
   configFile.changeConfig("customDir.CloudPath", "");
+
+  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+
   showRestartAlert();
 });
 
 document.getElementById("fileselectorBat").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorBat") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.BatFilesPath", fileselector);
+
+  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+
   showRestartAlert();
 });
 
 document.getElementById("buttonDefaultBat").addEventListener("click", () => {
   configFile.changeConfig("customDir.BatFilesPath", "");
+
+  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+
   showRestartAlert();
 });
-
-function actualCloudPath() {
-  const actualtPathCloud = (document.getElementById("ActualtPathCloud") as HTMLInputElement);
-  // tslint:disable-next-line: max-line-length
-  const pathCloud = configFile.getCurrentCloudFolder();
-  const createText = document.createTextNode("Current Path: " + pathCloud);
-
-  actualtPathCloud.appendChild(createText);
-}
-
-function actualBatPath() {
-  const actualtPathBat = (document.getElementById("ActualPathBat") as HTMLInputElement);
-  // tslint:disable-next-line: max-line-length
-  const pathBat = configFile.existcustomDirBatFilesPath() ? configFile.getItemValue("customDir.BatFilesPath") : configFile.getItemValue("defaultDir.BatFilesPath");
-  const createText = document.createTextNode("Current Path: " + pathBat);
-
-  actualtPathBat.appendChild(createText);
-
-}
 
 /** ************************ */
 
