@@ -1,9 +1,9 @@
-import { app, BrowserWindow, dialog, Menu, Notification, Tray } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, Notification, Tray } from "electron";
 import * as path from "path";
 import * as os from "os";
 import logFile from "electron-log";
 
-//***** My files imports *****/
+/***** My files imports *****/
 import Observer from "../services/Observer";
 import ConfigFile from "../services/ConfigFile";
 import { mainWindowText } from "./mainWindowText.controller";
@@ -14,7 +14,6 @@ export default class Main {
 
     // Access to the Config File Doucument.
     private configFile = new ConfigFile();
-    private cloudFolder = this.configFile.getCurrentCloudFolder();
 
     // Allow to obtain a lock for run a single instante of the app
     private obtainLock = app.requestSingleInstanceLock();
@@ -30,6 +29,11 @@ export default class Main {
     private mainIndex: string = (path.join(__dirname, "../../../public/index.hbs"));
 
     private canExit: boolean = false;
+
+    // Variables to control the tutorial window.
+    private tutorialWindow: BrowserWindow = null;
+    private tutorialIndex: string = (path.join(__dirname, "../../../public/tutorialIndex.hbs"));
+    private canOpenTutorial: boolean = true;
 
 
     private appInfo = {
@@ -56,19 +60,29 @@ export default class Main {
             this.createTopMenu();
             this.createTray();
         });
+
+        ipcMain.on("getTutorial", () => {
+            this.window.webContents.send("openTutorial", {
+                tutorial: this.createTutorialWindow(),
+            });
+        });
+
+        ipcMain.on("changeCloudPath", () => {
+            this.observeFolder();
+        });
     }
 
     private observeFolder() {
         this.observer.on("file-added", (log) => {
             logFile.info(log.message);
         });
-        this.observer.watchFolder(this.cloudFolder);
+        this.observer.watchFolder(this.configFile.getCurrentCloudFolder());
     }
 
     // Function used to check if the app can start with the SO.
     private startOnTurnOn(): boolean {
         // See the config to check the user option.
-        if(this.configFile.getItemValue("startWithWindows")) {
+        if (this.configFile.getItemValue("startWithWindows")) {
             app.setLoginItemSettings({
                 openAtLogin: true,
                 path: app.getPath("exe"),
@@ -87,7 +101,7 @@ export default class Main {
     // Function used to ensure that the app only have one instance.
     private oneInstance() {
         // this.obtainLock = false. We can assume that other instance of the app is running.
-        if(!this.obtainLock) {
+        if (!this.obtainLock) {
             // Close this instance.
             app.quit();
         } else {
@@ -124,7 +138,7 @@ export default class Main {
             maxHeight: 720,
             maximizable: false,
             center: true,
-            autoHideMenuBar: true,
+            autoHideMenuBar: false,
             show: false,
             webPreferences: {
                 // devTools: false,
@@ -169,7 +183,7 @@ export default class Main {
             },
 
             { type: "separator" },
-        
+
             { label: "Salir", type: "normal",
                 click: () => {
                     this.exitApp();
@@ -180,6 +194,11 @@ export default class Main {
         this.tray = new Tray(this.icon);
         this.tray.setToolTip("Application for google assistant to control your PC.");
         this.tray.setContextMenu(contextMenu);
+
+        this.tray.on("double-click", () => {
+            this.window.show();
+            this.window.focus();
+        });
     }
 
     // Function that notify the user when the app is minimized.
@@ -190,13 +209,57 @@ export default class Main {
             hasReply: false,
             icon: this.icon,
             title: "Google Assistant For PC",
+            silent: true,
         });
-        
+
         notification.on("click", () => {
             this.window.show();
             this.window.focus();
         });
         return notification;
+    }
+
+    private createTutorialWindow() {
+        const windowOptions: Electron.BrowserWindowConstructorOptions = {
+            // Default title but defined on HTML.
+            title: "Tutorial",
+            parent: this.window,
+            icon: this.icon,
+            width: 600,
+            height: 400,
+            minWidth: 600,
+            minHeight: 400,
+            maxWidth: 600,
+            maxHeight: 400,
+            maximizable: false,
+            minimizable: false,
+            center: true,
+            autoHideMenuBar: true,
+            show: false,
+            webPreferences: {
+                // devTools: false,
+                nodeIntegration: true,
+                preload: path.join(__dirname, "../preload.js"),
+            },
+        };
+
+        if (this.canOpenTutorial) {
+            this.tutorialWindow = new BrowserWindow(windowOptions);
+            this.tutorialWindow.removeMenu();
+            this.tutorialWindow.setAlwaysOnTop(true);
+            this.tutorialWindow.loadFile(this.tutorialIndex);
+
+            this.tutorialWindow.on("ready-to-show", () => {
+                this.tutorialWindow.show();
+            });
+
+            this.tutorialWindow.on("close", (event) => {
+                this.tutorialWindow = null;
+                this.canOpenTutorial = true;
+            });
+            this.canOpenTutorial = false;
+        }
+
     }
 
     // Function used to create the top menu used for all the windows.
@@ -219,12 +282,18 @@ export default class Main {
                 },
             },
             {
+                label: "Tutorial",
+                click: () => {
+                    this.createTutorialWindow();
+                },
+            },
+            {
                 accelerator: "CmdOrCtrl+Shift+Q",
                 label: "Exit",
                 click: () => {
                    this.exitApp();
                 },
-            }
+            },
         ]);
 
         Menu.setApplicationMenu(menu);
@@ -232,10 +301,10 @@ export default class Main {
 
     // tslint:disable-next-line: member-ordering
     public exitApp() {
+        this.startOnTurnOn();
         this.canExit = true;
         this.tray.destroy();
         this.window = null;
         app.quit();
     }
-
 }

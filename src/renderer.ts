@@ -7,13 +7,16 @@ import ConfigFile from "./services/ConfigFile";
 
 const configFile = new ConfigFile();
 
+function getCurrentPaths() {
+  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+}
+
 function onStart() {
   if (configFile.getItemValue("startWithWindows")) {
     (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
   }
-
-  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
-  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+  getCurrentPaths();
 }
 onStart();
 
@@ -33,8 +36,20 @@ ipcRenderer.on("appInfo", (event, data) => {
   console.log(data);
 });
 
+ipcRenderer.on("openTutorial", (event, data) => {
+  data.tutorial;
+});
 
-/** SHOW MORE INFO ALERT */
+/***** SHOW TUTORIAL *****/
+
+document.getElementById("showTutorial").addEventListener("click", () => {
+  showTutorial();
+});
+
+function showTutorial() {
+  ipcRenderer.send("getTutorial");
+}
+
 /** ************************ */
 
 
@@ -44,34 +59,38 @@ document.getElementById("fileselectorCloud").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorCloud") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.CloudPath", fileselector);
 
-  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+  ipcRenderer.send("changeCloudPath");
 
-  showRestartAlert();
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
   configFile.changeConfig("customDir.CloudPath", "");
 
-  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
+  ipcRenderer.send("changeCloudPath");
 
-  showRestartAlert();
+  getCurrentPaths();
+
+  // showRestartAlert();
 });
 
 document.getElementById("fileselectorBat").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorBat") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.BatFilesPath", fileselector);
 
-  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+  getCurrentPaths();
 
-  showRestartAlert();
+  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultBat").addEventListener("click", () => {
   configFile.changeConfig("customDir.BatFilesPath", "");
 
-  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
+  getCurrentPaths();
 
-  showRestartAlert();
+  // showRestartAlert();
 });
 
 /** ************************ */
@@ -176,7 +195,6 @@ function startWithWindows() {
   const check = (document.getElementById("startWithWindows") as HTMLInputElement).checked;
   configFile.changeConfig("startWithWindows", check);
   log.info("Start With Windows: " + check);
-  showRestartAlert();
 }
 
 function restartApp() {

@@ -9,15 +9,6 @@
   <body>
 
     <div class="p-3 container">
-  
-      <div id="alertContainerMoreInfo" style="display:none;">
-        <div id="alertMessage" class="alert alert-info alert-dismissable" role="alert">
-          <button onclick="hideMoreInfoAlert()" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
-            &times;
-          </button>
-          <p>This function is not yet enabled!</p>
-        </div>
-      </div>
 
       <div class="row">
         <div class="col-sm">
@@ -27,7 +18,7 @@
               <p class="card-text">Here you will be able to set up some options about the program as the path of the services of the cloud,
                 or the path where the files will be executed. </p>
               <p>You can also create your ouwn script and save them in the selected path.</p>
-              <a href="#" class="btn btn-info" onclick="showMoreInfoAlert()">Click for more information</a>
+              <button type="button" href="#" class="btn btn-info" id="showTutorial">Click for more information</button>
             </div>
           </div>
         </div>
