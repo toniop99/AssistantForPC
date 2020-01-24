@@ -7,21 +7,22 @@ import ConfigFile from "./services/ConfigFile";
 
 const configFile = new ConfigFile();
 
-function getCurrentPaths() {
-  document.getElementById("actualPathBat").innerText = configFile.getCurrentBatFolder();
-  document.getElementById("actualtPathCloud").innerText = configFile.getCurrentCloudFolder();
-}
-
 function onStart() {
-  if (configFile.getItemValue("startWithWindows")) {
-    (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
-  }
-  getCurrentPaths();
+  window.onload = () => {
+    if (configFile.getItemValue("startWithWindows")) {
+      (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
+    }
+  };
 }
 onStart();
 
-ipcRenderer.on("appInfo", (event, data) => {
+function restartApp() {
+  remote.app.relaunch();
+  remote.app.exit();
+}
 
+ipcRenderer.on("appInfo", (event, data) => {
+  ipcRenderer.removeAllListeners("appInfo");
   const options = {
     type: "info",
     buttons: ["Close"],
@@ -37,11 +38,13 @@ ipcRenderer.on("appInfo", (event, data) => {
 });
 
 ipcRenderer.on("openTutorial", (event, data) => {
+  ipcRenderer.removeAllListeners("openTutorial");
   data.tutorial;
 });
 
 
 /***** UPDATE NOTIFICATION *****/
+
 const alertContainerUpdate = document.getElementById("alertContainerUpdate");
 const updateMessage = document.getElementById("updateMessage");
 const updaterestartButton = document.getElementById("updaterestartButton");
@@ -53,6 +56,7 @@ ipcRenderer.on("update_available", () => {
   alertContainerUpdate.classList.remove("hidden");
 
 });
+
 ipcRenderer.on("update_downloaded", () => {
   ipcRenderer.removeAllListeners("update_downloaded");
   updateMessage.innerText = "Update Downloaded. It will be installed on restart. Restart now?";
@@ -70,22 +74,18 @@ updaterestartButton.addEventListener("click", () => {
 });
 
 
-/***** *****/
+/** ************************ */
 
 /***** SHOW TUTORIAL *****/
 
 document.getElementById("showTutorial").addEventListener("click", () => {
-  showTutorial();
-});
-
-function showTutorial() {
   ipcRenderer.send("getTutorial");
-}
+});
 
 /** ************************ */
 
 
-/** CONFIGURATION SECTION */
+/***** CONFIGURATION SECTION *****/
 
 document.getElementById("fileselectorCloud").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorCloud") as HTMLInputElement).files[0].path;
@@ -93,9 +93,6 @@ document.getElementById("fileselectorCloud").addEventListener("change", () => {
 
   ipcRenderer.send("changeCloudPath");
 
-  getCurrentPaths();
-
-  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
@@ -103,32 +100,23 @@ document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
 
   ipcRenderer.send("changeCloudPath");
 
-  getCurrentPaths();
-
-  // showRestartAlert();
 });
 
 document.getElementById("fileselectorBat").addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorBat") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.BatFilesPath", fileselector);
 
-  getCurrentPaths();
-
-  // showRestartAlert();
 });
 
 document.getElementById("buttonDefaultBat").addEventListener("click", () => {
   configFile.changeConfig("customDir.BatFilesPath", "");
 
-  getCurrentPaths();
-
-  // showRestartAlert();
 });
 
 /** ************************ */
 
 
-/** TEXTAREA */
+/***** TEXTAREA *****/
 
 document.getElementById("saveBat").addEventListener("click", () => {
   saveBat();
@@ -137,24 +125,23 @@ document.getElementById("saveBat").addEventListener("click", () => {
 function saveBat() {
   const titleToSave = (document.getElementById("batTitle") as HTMLInputElement).value;
   const textToSave = (document.getElementById("batText") as HTMLInputElement).value;
-  // tslint:disable-next-line: max-line-length
-  const batFolder = configFile.existcustomDirBatFilesPath() ? configFile.getItemValue("customDir.BatFilesPath") : configFile.getItemValue("defaultDir.BatFilesPath");
+  const batFolder = configFile.getCurrentBatFolder();
   const fullPath = path.join(batFolder, titleToSave);
-
   const re = /(?:\.([^.]+))?$/;
 
   if (re.exec(titleToSave)[1] === "bat") {
     fs.writeFile(fullPath, textToSave, (err) => {
       if (err) { log.error(err); }
     });
-
     showBatSavedAlert(titleToSave, fullPath);
+
   } else {
     fs.writeFile(fullPath + ".bat", textToSave, (err) => {
       if (err) { log.error(err); }
-    });
 
+    });
     showBatSavedAlert(titleToSave + ".bat", fullPath + ".bat");
+
   }
 
   // Resetting the value of the html textArea
@@ -165,50 +152,26 @@ function saveBat() {
 
 /** ************************ */
 
-/** RESTART ALERT  */
-
-function showRestartAlert() {
-  const alertContainer = (document.getElementById("alertContainerRestartApp") as HTMLInputElement);
-  alertContainer.removeAttribute("style");
-  setTimeout(() => {
-    hideRestartAlert();
-  }, 10000);
-}
-
-function hideRestartAlert() {
-  const alertContainer = (document.getElementById("alertContainerRestartApp") as HTMLInputElement);
-  alertContainer.setAttribute("style", "display:none;");
-}
-
-document.getElementById("hideRestartAlert").addEventListener("click", () => {
-  hideRestartAlert();
-});
-
-document.getElementById("buttonResetApp").addEventListener("click", () => {
-  hideRestartAlert();
-  restartApp();
-});
-
-/** ************************ */
-
-/** BAT SAVED ALERT */
+/***** BAT SAVED ALERT *****/
 
 function showBatSavedAlert(fileName: string, filePath: string) {
-  const alertContainer = (document.getElementById("alertContainerBatSaved") as HTMLInputElement);
-  const text = (document.getElementById("textToShowBatSaved") as HTMLInputElement);
-  const textToAdd = document.createTextNode(fileName + " file saved at: " + filePath);
-  text.appendChild(textToAdd);
+  const alertContainer = document.getElementById("alertContainerBatSaved");
+  const text = document.getElementById("textToShowBatSaved");
+  const textToAdd = fileName + " file saved at: " + filePath;
 
-  alertContainer.removeAttribute("style");
+  text.innerText = textToAdd;
+
+  alertContainer.classList.remove("hidden");
+
   setTimeout(() => {
     hideBatSavedAlert();
-    text.removeChild(textToAdd);
+    text.innerText = "";
   }, 4000);
 }
 
 function hideBatSavedAlert() {
-  const alertContainer = (document.getElementById("alertContainerBatSaved") as HTMLInputElement);
-  alertContainer.setAttribute("style", "display:none;");
+  const alertContainer = document.getElementById("alertContainerBatSaved");
+  alertContainer.classList.add("hidden");
 }
 
 document.getElementById("hideBatSaved").addEventListener("click", () => {
@@ -217,7 +180,7 @@ document.getElementById("hideBatSaved").addEventListener("click", () => {
 
 /** ************************ */
 
-
+/***** START WITH WINDOWS BUTTON *****/
 
 document.getElementById("startWithWindows").addEventListener("change", () => {
   startWithWindows();
@@ -229,7 +192,4 @@ function startWithWindows() {
   log.info("Start With Windows: " + check);
 }
 
-function restartApp() {
-  remote.app.relaunch();
-  remote.app.exit();
-}
+/** ************************ */

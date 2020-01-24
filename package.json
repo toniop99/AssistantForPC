@@ -2,12 +2,12 @@
   "name": "google-assistant-control-pc",
   "version": "1.1.2",
   "description": "A program to make thing with google assistant",
-  "main": "./output/src/main.js",
+  "main": "./output/main.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "npm run build && electron ./output/src/main.js",
+    "start": "npm run build && electron ./output/main.js",
     "dist": "npm run build && electron-builder build --win --publish never",
     "deploy": "npm run build && electron-builder build --win --publish always"
   },

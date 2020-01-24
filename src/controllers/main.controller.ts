@@ -8,7 +8,6 @@ import logFile from "electron-log";
 import Observer from "../services/Observer";
 import ConfigFile from "../services/ConfigFile";
 import { mainWindowText } from "./mainWindowText.controller";
-
 mainWindowText();
 
 export default class Main {
@@ -28,14 +27,14 @@ export default class Main {
     // Variables used to the control of the app and the main window.
     private window: BrowserWindow = null;
     private tray: Tray = null;
-    private icon: string = path.join(__dirname, "../../../public/images/icons/icon64.png");
-    private mainIndex: string = (path.join(__dirname, "../../../public/index.hbs"));
+    private icon: string = path.join(__dirname, "../../public/images/icons/icon64.png");
+    private mainIndex: string = (path.join(__dirname, "../../public/index.hbs"));
 
     private canExit: boolean = false;
 
     // Variables to control the tutorial window.
     private tutorialWindow: BrowserWindow = null;
-    private tutorialIndex: string = (path.join(__dirname, "../../../public/tutorialIndex.hbs"));
+    private tutorialIndex: string = (path.join(__dirname, "../../public/tutorialIndex.hbs"));
     private canOpenTutorial: boolean = true;
 
 
@@ -129,7 +128,7 @@ export default class Main {
         } else {
             /** We do that when the user try to open other instance when one is executed. */
             app.on("second-instance", () => {
-                if(this.window) {
+                if (this.window) {
                     if (this.window.isMinimized()) {this.window.restore(); }
                     this.window.focus();
 
@@ -153,11 +152,11 @@ export default class Main {
             title: "Assistant for your PC",
             icon: this.icon,
             width: 1280,
-            height: 720,
-            minWidth: 800,
-            minHeight: 720,
+            height: 760,
+            minWidth: 1280,
+            minHeight: 760,
             maxWidth: 1280,
-            maxHeight: 720,
+            maxHeight: 760,
             maximizable: false,
             center: true,
             autoHideMenuBar: false,
@@ -179,7 +178,7 @@ export default class Main {
 
         this.window.on("minimize", (event: Electron.Event) => {
             event.preventDefault();
-           this.window.hide();
+            this.window.hide();
             this.minimizedNotification().show();
         });
 
@@ -308,6 +307,24 @@ export default class Main {
                 click: () => {
                     this.createTutorialWindow();
                 },
+            },
+            {
+                label: "Language",
+                sublabel: "Reset to see the language changes",
+                submenu: [
+                    {
+                        label: "English",
+                        click: () => {
+                            this.configFile.changeConfig("language", "english");
+                        },
+                    },
+                    {
+                        label: "Español",
+                        click: () => {
+                            this.configFile.changeConfig("language", "spanish");
+                        },
+                    },
+                ],
             },
             {
                 accelerator: "CmdOrCtrl+Shift+Q",

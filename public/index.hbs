@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title class="text-center">{{ title }}</title>
+    <title class="text-center">{{ language.title }}</title>
 
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/app.css">
@@ -49,7 +49,7 @@
               </div>
               
               <div class="text-center">
-                <p class="text-info" id="actualtPathCloud"></p>
+                <p class="text-info" id="actualtPathCloud">{{ actualtPathCloud }} <p class="text-danger"> (Reset to display changes(On fix)</p></p>
                 <h7 class="mb-4 text-danger font-weight-bold">
                   Watch out! don't select a folder with files you don't want to delete </h7>
               </div>
@@ -73,34 +73,13 @@
               
               </div>
               <div class="text-center">
-                <p class="text-info" id="actualPathBat"></p>
+                <p class="text-info" id="actualPathBat">{{ actualPathBat }} <p class="text-danger">(Reset to display changes(On fix)</p></p>
               </div>
 
             </div>
           </div>
         </div>
       </div> 
-
-      <div class="row d-inline p-0 m-0">
-        <div id="alertContainerRestartApp" style="display:none;">
-          <div id="alertMessage1" class="alert alert-warning alert-dismissable" role="alert">
-            <div class="row">
-              <div class="col-sm-4">
-                <p>Restart the app to save the changes!</p>
-              </div>
-              <div class="col-sm-6">
-                <button id="buttonResetApp" type="button" class="btn btn-light btn-sm">Restart</button>
-              </div>
-              <div class="col-sm-2">
-                <button id="hideRestartAlert" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
-                  &times;
-                </button>
-              </div>
-            </div>  
-          
-          </div>
-        </div> 
-      </div>
 
 
       <div class="input-group mt-3">
@@ -125,59 +104,64 @@
         <p class="text-danger text-center">The file will save in the current path for executed files. .bat extension is automatically set</p>
       </div>
 
-      <div id="alertContainerBatSaved" style="display:none;">
-        <div id="alertMessage2" class="alert  alert-success alert-dismissable" role="alert">
-          <button id="hideBatSaved" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
-            &times; </button>
-          <p id="textToShowBatSaved"></p>
-        </div>
-      </div> 
+      <div class="footer"> 
 
-      <div class="row"> 
-        
-        <div class="col-sm-9">
-          <div class="form-check text-left d-inline">
-            <input class="form-check-input" type="checkbox" value="" id="startWithWindows">
-            <label class="form-check-label" for="startWithWindows"> Start with Windows? </label>
+        <div class="row">
+          <div class="col-sm">
+              <div class="form-check text-left startWith">
+                <input class="form-check-input" type="checkbox" id="startWithWindows">
+                <label class="form-check-label" for="startWithWindows"> Start with Windows? </label>
+              </div>
           </div>
-        </div>
 
-        <div class="col-sm">
-          <p class="text-info text-right d-inline">Version {{ appVersion }}</p>
+          <div class="col-sm">
+            <div class="text-right version">
+              <p class="text-info">Version {{ appVersion }}</p>
+            </div>
+          </div>
+
         </div>
+        
+            
+        <div id="alertContainerBatSaved" class="alertBatSaved hidden">
+            <div id="alertMessage2" class="alert  alert-success alert-dismissable" role="alert">
+              <button id="hideBatSaved" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">
+                &times; </button>
+              <p id="textToShowBatSaved"></p>
+            </div>
+        </div> 
+
+        <div id="alertContainerUpdate" class="hidden">
+            <div id="alertMessage2" class="alert  alert-info alert-dismissable" role="alert">
+              <div class="row">
+                <div class="col-sm">
+                  <p id="updateMessage"></p>
+                </div>
+
+                <div class="col-sm">
+                  <button id="updaterestartButton" class="hidden btn btn-info">Restart</button>
+                </div>
+
+                <div class="col-sm">
+                  <button id="hideUpdate" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">&times; </button>
+                </div>
+
+              </div>
+              
+            </div>
+        </div> 
 
       </div>
+      
 
-      <div id="alertContainerUpdate" class="hidden">
-        <div id="alertMessage2" class="alert  alert-info alert-dismissable" role="alert">
-          <div class="row">
-            <div class="col-sm">
-              <p id="updateMessage"></p>
-            </div>
-
-            <div class="col-sm">
-              <button id="updaterestartButton" class="hidden btn btn-info">Restart</button>
-            </div>
-
-            <div class="col-sm">
-              <button id="hideUpdate" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">&times; </button>
-            </div>
-
-          </div>
-          
-        </div>
-      </div> 
-
-
+      
     </div>   
 
 
 
-    <script src="../output/public/javascripts/index.js"></script>
-
     <script>
       // https://github.com/electron/electron/issues/2863
-      require('../output/src/renderer.js');
+      require('../output/renderer.js');
     </script>
 
   </body>

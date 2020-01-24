@@ -18,6 +18,7 @@ export default class ConfigFile {
         },
 
         startWithWindows : true,
+        language: "english",
         configuration : {
             show: false,
             useFolders: true,
