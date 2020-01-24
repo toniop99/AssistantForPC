@@ -31,7 +31,7 @@ export function mainWindowText() {
 
         actualPathBat: configFile.getCurrentBatFolder(),
         actualtPathCloud: configFile.getCurrentCloudFolder(),
-        appVersion: "1.1.2",
+        appVersion: "1.1.3",
     });
 }
 
