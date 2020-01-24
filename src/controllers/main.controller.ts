@@ -9,6 +9,8 @@ import Observer from "../services/Observer";
 import ConfigFile from "../services/ConfigFile";
 import { mainWindowText } from "./mainWindowText.controller";
 
+mainWindowText();
+
 export default class Main {
 
     /***** VARIABLES *****/
@@ -52,16 +54,20 @@ export default class Main {
     public startApp() {
         app.setName("Google Assistant For Your PC");
         this.observeFolder();
-        mainWindowText();
         this.oneInstance();
         this.startOnTurnOn();
 
         app.on("ready", () => {
+            autoUpdater.logger = logFile;
+            autoUpdater.checkForUpdatesAndNotify();
+
             this.createMainWindow();
             this.createTopMenu();
             this.createTray();
+        });
 
-            autoUpdater.checkForUpdatesAndNotify();
+        app.on("before-quit", () => {
+            // this.exitApp();
         });
 
         ipcMain.on("getTutorial", () => {
@@ -75,6 +81,7 @@ export default class Main {
         });
 
         ipcMain.on("restart_app_update", () => {
+            this.canExit = true;
             autoUpdater.quitAndInstall();
         });
 
@@ -120,7 +127,7 @@ export default class Main {
             // Close this instance.
             app.quit();
         } else {
-            /** We do that when the user try to open other instance when one is executed. **/
+            /** We do that when the user try to open other instance when one is executed. */
             app.on("second-instance", () => {
                 if(this.window) {
                     if (this.window.isMinimized()) {this.window.restore(); }
