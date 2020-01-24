@@ -1,4 +1,3 @@
-.env
 node_modules
 dist
 build
@@ -7,3 +6,4 @@ public/images/icons
 TO_DO.txt
 public/tutorialIndex_copy.html
 electron-builder.yml
+.env
