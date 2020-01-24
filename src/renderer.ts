@@ -40,6 +40,38 @@ ipcRenderer.on("openTutorial", (event, data) => {
   data.tutorial;
 });
 
+
+/***** UPDATE NOTIFICATION *****/
+const alertContainerUpdate = document.getElementById("alertContainerUpdate");
+const updateMessage = document.getElementById("updateMessage");
+const updaterestartButton = document.getElementById("updaterestartButton");
+const hideUpdate = document.getElementById("hideUpdate");
+
+ipcRenderer.on("update_available", () => {
+  ipcRenderer.removeAllListeners("update_available");
+  updateMessage.innerText = "A new update is available. Downloading now...";
+  alertContainerUpdate.classList.remove("hidden");
+
+});
+ipcRenderer.on("update_downloaded", () => {
+  ipcRenderer.removeAllListeners("update_downloaded");
+  updateMessage.innerText = "Update Downloaded. It will be installed on restart. Restart now?";
+  updaterestartButton.classList.remove("hidden");
+  alertContainerUpdate.classList.remove("hidden");
+});
+
+hideUpdate.addEventListener("click", () => {
+  updaterestartButton.classList.add("hidden");
+  alertContainerUpdate.classList.add("hidden");
+});
+
+updaterestartButton.addEventListener("click", () => {
+  ipcRenderer.send("restart_app_update");
+});
+
+
+/***** *****/
+
 /***** SHOW TUTORIAL *****/
 
 document.getElementById("showTutorial").addEventListener("click", () => {

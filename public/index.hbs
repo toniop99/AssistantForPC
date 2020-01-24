@@ -5,6 +5,7 @@
     <title class="text-center">{{ title }}</title>
 
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/app.css">
   </head>
   <body>
 
@@ -142,12 +143,35 @@
         </div>
 
         <div class="col-sm">
-          <p class="text-info text-right d-inline">Version 1.0.1</p>
+          <p class="text-info text-right d-inline">Version {{appVersion}}</p>
         </div>
 
       </div>
 
+      <div id="alertContainerUpdate" class="hidden">
+        <div id="alertMessage2" class="alert  alert-info alert-dismissable" role="alert">
+          <div class="row">
+            <div class="col-sm">
+              <p id="updateMessage">afssssssssssssssafasf</p>
+            </div>
+
+            <div class="col-sm">
+              <button id="updaterestartButton" class="hidden btn btn-info">Restart</button>
+            </div>
+
+            <div class="col-sm">
+              <button id="hideUpdate" type="button" class="close" data-dismiss="alert" aria-hidden="true" aria-label="Close">&times; </button>
+            </div>
+
+          </div>
+          
+        </div>
+      </div> 
+
+
     </div>   
+
+
 
     <script src="../output/public/javascripts/index.js"></script>
 

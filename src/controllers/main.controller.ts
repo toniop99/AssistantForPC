@@ -1,4 +1,5 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, Notification, Tray } from "electron";
+import { autoUpdater } from "electron-updater";
 import * as path from "path";
 import * as os from "os";
 import logFile from "electron-log";
@@ -59,6 +60,8 @@ export default class Main {
             this.createMainWindow();
             this.createTopMenu();
             this.createTray();
+
+            autoUpdater.checkForUpdatesAndNotify();
         });
 
         ipcMain.on("getTutorial", () => {
@@ -69,6 +72,18 @@ export default class Main {
 
         ipcMain.on("changeCloudPath", () => {
             this.observeFolder();
+        });
+
+        ipcMain.on("restart_app_update", () => {
+            autoUpdater.quitAndInstall();
+        });
+
+        autoUpdater.on("update-available", () => {
+            this.window.webContents.send("update_available");
+          });
+
+        autoUpdater.on("update-downloaded", () => {
+            this.window.webContents.send("update_downloaded");
         });
     }
 

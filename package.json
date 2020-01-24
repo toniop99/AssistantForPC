@@ -8,8 +8,14 @@
     "watch": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "start": "npm run build && electron ./output/src/main.js",
-    "dist": "electron-builder"
+    "dist": "electron-builder build --win --publish never",
+    "deploy": "electron-builder build --win --publish always"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Chapikas/AssistantForPC.git"
+  },
+
   "author": "Chapikas <granviamurcia2@gmail.com>",
   "license": "MIT",
   "build": {
@@ -46,6 +52,7 @@
     "electron-handlebars": "^2.0.0",
     "electron-log": "^4.0.3",
     "electron-store": "^5.1.0",
+    "electron-updater": "^4.2.0",
     "fs-extra": "^8.1.0",
     "type-fest": "^0.8.1"
   }
