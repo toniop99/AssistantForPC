@@ -11,7 +11,7 @@ const dictionary = {
     },
 };
 
-const configFile = new ConfigFile();
+const configFile = ConfigFile.getInstace();
 
 
 export function mainWindowText() {

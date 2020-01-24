@@ -5,7 +5,7 @@ import * as path from "path";
 import ConfigFile from "./services/ConfigFile";
 
 
-const configFile = new ConfigFile();
+const configFile = ConfigFile.getInstace();
 
 function onStart() {
   window.onload = () => {

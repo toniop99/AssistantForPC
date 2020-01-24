@@ -15,7 +15,7 @@ export default class Main {
     /***** VARIABLES *****/
 
     // Access to the Config File Doucument.
-    private configFile = new ConfigFile();
+    private configFile = ConfigFile.getInstace();
 
     // Allow to obtain a lock for run a single instante of the app
     private obtainLock = app.requestSingleInstanceLock();

@@ -1,12 +1,16 @@
 import Store = require("electron-store");
 import * as os from "os";
 import * as path from "path";
+const defaultBrowser = require("x-default-browser");
 
+// Singleton class
 export default class ConfigFile {
 
-    private static configFile = new Store();
+    private static instance: ConfigFile;
 
-    private static defaultConfigFile = {
+    private configFile = new Store();
+
+    private defaultConfigFile = {
         defaultDir : {
             BatFilesPath : path.join(os.userInfo().homedir , "/Documents/GoogleAssistantBatFiles/"),
             CloudPath : path.join(os.userInfo().homedir , "/Dropbox/GoogleAssistant/"),
@@ -26,24 +30,36 @@ export default class ConfigFile {
         }
     };
 
-    constructor() {
-        // console.log(this.configFile.path);
-        if (!ConfigFile.configFile.has("defaultDir") || !ConfigFile.configFile.has("customDir")) {
+    private constructor() {
+        // TODO Check all the config files to guarantee if we need set the default config or not. 
+        if (!this.configFile.has("defaultDir") || !this.configFile.has("customDir")) {
             this.setDefaultConfig();
         }
+
+        // defaultBrowser((err: any, res: any) => {
+        //     console.log(res);
+        // });
     }
 
+    public static getInstace(): ConfigFile {
+        if (!ConfigFile.instance) {
+            ConfigFile.instance = new ConfigFile();
+        }
+        return ConfigFile.instance;
+    }
+    
     public changeConfig(key: string, value: any) {
-        ConfigFile.configFile.set(key, value);
+        this.configFile.set(key, value);
         // console.log("Changed: " + this.configFile.get(nameToChange));
     }
 
     public getItemValue(nameItem: string): any {
-        return ConfigFile.configFile.get(nameItem);
+        return this.configFile.get(nameItem);
     }
 
+    // Return the path where this file is placed.
     public getPathConfigFile(): string {
-        return ConfigFile.configFile.path;
+        return this.configFile.path;
     }
 
     public getCurrentCloudFolder(): string {
@@ -63,18 +79,18 @@ export default class ConfigFile {
     }
 
     public existcustomDirBatFilesPath(): boolean {
-        if (ConfigFile.configFile.get("customDir.BatFilesPath") === "") {
+        if (this.configFile.get("customDir.BatFilesPath") === "") {
             return false;
         }
         return true;
     }
 
     private setDefaultConfig() {
-        ConfigFile.configFile.set(ConfigFile.defaultConfigFile);
+        this.configFile.set(this.defaultConfigFile);
     }
 
     private existcustomDirCloudPath(): boolean {
-        if (ConfigFile.configFile.get("customDir.CloudPath") === "") {
+        if (this.configFile.get("customDir.CloudPath") === "") {
             return false;
         }
         return true;

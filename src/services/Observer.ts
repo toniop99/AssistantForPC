@@ -9,7 +9,7 @@ import ConfigFile from "./ConfigFile";
 
 
 export default class Observer extends EventEmitter {
-    private cf = new ConfigFile();
+    private cf = ConfigFile.getInstace();
     // tslint:disable-next-line: max-line-length
 
     constructor() {
@@ -51,7 +51,7 @@ export default class Observer extends EventEmitter {
                         );
                         log.info(`${filePath} has been removed.`);
 
-                    }, 8000);
+                    }, 4000);
             });
         } catch (error) {
             // tslint:disable-next-line: no-console
