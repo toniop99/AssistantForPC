@@ -10,27 +10,22 @@ import ConfigFile from "./ConfigFile";
 
 export default class Observer extends EventEmitter {
     private cf = ConfigFile.getInstace();
-    // tslint:disable-next-line: max-line-length
+
+    private watcher: chokidar.FSWatcher;
 
     constructor() {
         super();
     }
 
     public watchFolder(folder: string) {
+        this.watcher = null;
         try {
-            // tslint:disable-next-line: no-console
-            console.log(
-                `[${new Date().toLocaleString()}] Watching for folder changes on: ${folder}`,
-            );
             log.info(`Watching for folder changes on: ${folder}`);
 
             const watcher: chokidar.FSWatcher = chokidar.watch(folder, { persistent: true });
 
             watcher.on("add", async (filePath) => {
-                    // tslint:disable-next-line: no-console
-                    console.log(
-                        `[${new Date().toLocaleString()}] ${filePath} has been added.`,
-                    );
+                    
                     log.info(`${filePath} has been added.`);
 
                     // Read content of new file
@@ -45,17 +40,14 @@ export default class Observer extends EventEmitter {
 
                     setTimeout(async () => {
                         await fsExtra.unlink(filePath);
-                        // tslint:disable-next-line: no-console
-                        console.log(
-                            `[${new Date().toLocaleString()}] ${filePath} has been removed.`,
-                        );
+                        
                         log.info(`${filePath} has been removed.`);
 
                     }, 4000);
             });
         } catch (error) {
             // tslint:disable-next-line: no-console
-            console.log(error);
+            log.error(error);
         }
     }
 

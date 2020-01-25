@@ -4,15 +4,101 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import ConfigFile from "./services/ConfigFile";
 
+import { languages, getCurrentLanguage } from "./translations/mainWindow.translations"; 
 
 const configFile = ConfigFile.getInstace();
 
+
+/***** VARIABLES *****/
+
+          /***** SHOW INFORMATION VARIABLES *****/
+  const mainTitle = document.getElementById("applicationTitle");
+  const moreInformationTitle = document.getElementById("moreInformationTitle");
+  const moreInformationBody1 = document.getElementById("moreInformationBody1");
+  const moreInformationBody2 = document.getElementById("moreInformationBody2");
+  const showTutorial = document.getElementById("showTutorial");
+          /***** * *****/
+
+          /***** CONFIGURATION VARIABLES *****/
+  const configurationTitle = document.getElementById("configurationTitle");
+  
+          /***** CLOUD VARIABLES *****/
+  const configurationCloudPathText = document.getElementById("configurationCloudPathText");
+  const fileSelectorCloud = document.getElementById("fileselectorCloud");
+  const fileselectorCloudButton = document.getElementById("fileselectorCloudButton");
+  const buttonDefaultCloud = document.getElementById("buttonDefaultCloud");
+  const actualtPathCloud = document.getElementById("actualtPathCloud");
+  const cloudDangerMessage = document.getElementById("cloudDangerMessage");
+          /***** * *****/
+
+          /***** BAT VARIABLES *****/
+  const configurationBatPathText = document.getElementById("configurationBatPathText");
+  const fileselectorBat = document.getElementById("fileselectorBat");
+  const fileselectorBatButton = document.getElementById("fileselectorBatButton");
+  const buttonDefaultBat = document.getElementById("buttonDefaultBat");
+  const actualPathBat = document.getElementById("actualPathBat");
+
+          /***** * *****/
+
+
+          /***** EDITOR VARIABLES *****/
+  const editorTitle = document.getElementById("editorTitle");
+  const editorBody = document.getElementById("editorBody");
+  const saveBat = document.getElementById("saveBat");
+  const editorDangerMessage = document.getElementById("editorDangerMessage");
+
+          /***** * *****/
+
+          /***** FOOTER VARABLES *****/
+  const startWithWindowsText = document.getElementById("startWithWindowsText");
+  const versionText = document.getElementById("versionText");
+          /***** * *****/
+
+          /***** UPDATE NOTIFICATION *****/
+  const alertContainerUpdate = document.getElementById("alertContainerUpdate");
+  const updateMessage = document.getElementById("updateMessage");
+  const updaterestartButton = document.getElementById("updaterestartButton");
+  const hideUpdate = document.getElementById("hideUpdate");
+          /***** * *****/
+
+
+/***** * *****/
+
+function insertText() {
+  const cl = getCurrentLanguage();
+
+  mainTitle.innerText = cl.title;
+  moreInformationTitle.innerText = cl.moreInformation.title;
+  moreInformationBody1.innerText = cl.moreInformation.body1;
+  moreInformationBody2.innerText = cl.moreInformation.body2;
+  showTutorial.innerText = cl.moreInformation.button;
+
+  configurationTitle.innerText = cl.configuration.title;
+  configurationCloudPathText.innerText = cl.configuration.cloud.cloudPath;
+  fileselectorCloudButton.innerText = cl.configuration.cloud.cloudButton;
+  buttonDefaultCloud.innerText = cl.configuration.cloud.reset;
+  actualtPathCloud.innerText = configFile.getCurrentCloudFolder();
+  cloudDangerMessage.innerText = cl.configuration.cloud.dangerMessage; 
+  
+  configurationBatPathText.innerText = cl.configuration.bat.batPath;
+  fileselectorBatButton.innerText = cl.configuration.bat.batButton;
+  buttonDefaultBat.innerText = cl.configuration.bat.reset;
+  actualPathBat.innerText = configFile.getCurrentBatFolder();
+
+  editorTitle.innerText = cl.editor.title;
+  editorBody.innerText = cl.editor.body;
+  saveBat.innerText = cl.editor.button;
+  editorDangerMessage.innerText = cl.editor.dangerMessage;
+
+  startWithWindowsText.innerText = cl.footer.startWithWindows;
+  versionText.innerText = languages.appVersion;
+}
+insertText()
+
 function onStart() {
-  window.onload = () => {
-    if (configFile.getItemValue("startWithWindows")) {
-      (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
-    }
-  };
+  if (configFile.getItemValue("startWithWindows")) {
+    (document.getElementById("startWithWindows") as HTMLInputElement).checked = true;
+  }
 }
 onStart();
 
@@ -42,13 +128,11 @@ ipcRenderer.on("openTutorial", (event, data) => {
   data.tutorial;
 });
 
+ipcRenderer.on("changeLanguage", (event, data) => {
+  ipcRenderer.removeAllListeners("openTutorial");
+  insertText();
+});
 
-/***** UPDATE NOTIFICATION *****/
-
-const alertContainerUpdate = document.getElementById("alertContainerUpdate");
-const updateMessage = document.getElementById("updateMessage");
-const updaterestartButton = document.getElementById("updaterestartButton");
-const hideUpdate = document.getElementById("hideUpdate");
 
 ipcRenderer.on("update_available", () => {
   ipcRenderer.removeAllListeners("update_available");
@@ -78,7 +162,7 @@ updaterestartButton.addEventListener("click", () => {
 
 /***** SHOW TUTORIAL *****/
 
-document.getElementById("showTutorial").addEventListener("click", () => {
+showTutorial.addEventListener("click", () => {
   ipcRenderer.send("getTutorial");
 });
 
@@ -87,30 +171,36 @@ document.getElementById("showTutorial").addEventListener("click", () => {
 
 /***** CONFIGURATION SECTION *****/
 
-document.getElementById("fileselectorCloud").addEventListener("change", () => {
+fileSelectorCloud.addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorCloud") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.CloudPath", fileselector);
 
   ipcRenderer.send("changeCloudPath");
 
+  actualtPathCloud.innerText = configFile.getCurrentCloudFolder();
+
 });
 
-document.getElementById("buttonDefaultCloud").addEventListener("click", () => {
+buttonDefaultCloud.addEventListener("click", () => {
   configFile.changeConfig("customDir.CloudPath", "");
-
+  
   ipcRenderer.send("changeCloudPath");
 
+  actualtPathCloud.innerText = configFile.getCurrentCloudFolder();
+
 });
 
-document.getElementById("fileselectorBat").addEventListener("change", () => {
+fileselectorBat.addEventListener("change", () => {
   const fileselector: string = (document.getElementById("fileselectorBat") as HTMLInputElement).files[0].path;
   configFile.changeConfig("customDir.BatFilesPath", fileselector);
-
+ 
+  actualPathBat.innerText = configFile.getCurrentBatFolder();
 });
 
-document.getElementById("buttonDefaultBat").addEventListener("click", () => {
+buttonDefaultBat.addEventListener("click", () => {
   configFile.changeConfig("customDir.BatFilesPath", "");
 
+  actualPathBat.innerText = configFile.getCurrentBatFolder();
 });
 
 /** ************************ */
@@ -118,11 +208,11 @@ document.getElementById("buttonDefaultBat").addEventListener("click", () => {
 
 /***** TEXTAREA *****/
 
-document.getElementById("saveBat").addEventListener("click", () => {
-  saveBat();
+saveBat.addEventListener("click", () => {
+  saveBatFile();
 });
 
-function saveBat() {
+function saveBatFile() {
   const titleToSave = (document.getElementById("batTitle") as HTMLInputElement).value;
   const textToSave = (document.getElementById("batText") as HTMLInputElement).value;
   const batFolder = configFile.getCurrentBatFolder();

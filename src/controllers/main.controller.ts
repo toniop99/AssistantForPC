@@ -7,8 +7,7 @@ import logFile from "electron-log";
 /***** My files imports *****/
 import Observer from "../services/Observer";
 import ConfigFile from "../services/ConfigFile";
-import { mainWindowText } from "./mainWindowText.controller";
-mainWindowText();
+
 
 export default class Main {
 
@@ -28,13 +27,13 @@ export default class Main {
     private window: BrowserWindow = null;
     private tray: Tray = null;
     private icon: string = path.join(__dirname, "../../public/images/icons/icon64.png");
-    private mainIndex: string = (path.join(__dirname, "../../public/index.hbs"));
+    private mainIndex: string = (path.join(__dirname, "../../public/index.html"));
 
     private canExit: boolean = false;
 
     // Variables to control the tutorial window.
     private tutorialWindow: BrowserWindow = null;
-    private tutorialIndex: string = (path.join(__dirname, "../../public/tutorialIndex.hbs"));
+    private tutorialIndex: string = (path.join(__dirname, "../../public/tutorialIndex.html"));
     private canOpenTutorial: boolean = true;
 
 
@@ -316,12 +315,14 @@ export default class Main {
                         label: "English",
                         click: () => {
                             this.configFile.changeConfig("language", "english");
+                            this.window.webContents.send("changeLanguage");
                         },
                     },
                     {
                         label: "Español",
                         click: () => {
                             this.configFile.changeConfig("language", "spanish");
+                            this.window.webContents.send("changeLanguage");
                         },
                     },
                 ],
