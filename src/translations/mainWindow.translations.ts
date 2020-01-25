@@ -86,7 +86,7 @@ export const languages = {
         },
     },
 
-    appVersion: `Version 1.1.3`,
+    appVersion: `Version 1.1.4`,
 };
 
 export function getCurrentLanguage() {
