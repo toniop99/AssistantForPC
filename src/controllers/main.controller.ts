@@ -1,15 +1,19 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, Notification, Tray } from "electron";
+import { app, BrowserWindow, BrowserWindowConstructorOptions, dialog, ipcMain, Menu, Notification, Tray, MenuItem } from "electron";
 import { autoUpdater } from "electron-updater";
 import * as path from "path";
 import * as os from "os";
 import logFile from "electron-log";
+import isDev = require("electron-is-dev");
 
 /***** My files imports *****/
 import Observer from "../services/Observer";
 import ConfigFile from "../services/ConfigFile";
+import UI from "./UI.controller";
+import Tutorial from "./tutorial.controller";
 
+export default class Main extends UI{
 
-export default class Main {
+    private static instance: Main;
 
     /***** VARIABLES *****/
 
@@ -25,17 +29,17 @@ export default class Main {
 
     // Variables used to the control of the app and the main window.
     private window: BrowserWindow = null;
+    
     private tray: Tray = null;
+    private trayMessage: string = "Application to control your PC.";
+
     private icon: string = path.join(__dirname, "../../public/images/icons/icon64.png");
     private mainIndex: string = (path.join(__dirname, "../../public/index.html"));
 
     private canExit: boolean = false;
 
-    // Variables to control the tutorial window.
-    private tutorialWindow: BrowserWindow = null;
-    private tutorialIndex: string = (path.join(__dirname, "../../public/tutorialIndex.html"));
-    private canOpenTutorial: boolean = true;
-
+    // Control the tutorial window.
+    private tutorial: Tutorial = new Tutorial();
 
     private appInfo = {
         appName: app.getName(),
@@ -47,9 +51,20 @@ export default class Main {
 
     /***** * *****/
 
-    constructor() {}
+    private constructor() {
+        super();
+        this.initializeApp();
+    }
 
-    public startApp() {
+    public static getInstace(): Main {
+        if (!Main.instance) {
+            Main.instance = new Main();
+        }
+        return Main.instance;
+    }
+
+    
+    private initializeApp() {
         app.setName("Google Assistant For Your PC");
         this.observeFolder();
         this.oneInstance();
@@ -59,9 +74,9 @@ export default class Main {
             autoUpdater.logger = logFile;
             autoUpdater.checkForUpdatesAndNotify();
 
-            this.createMainWindow();
-            this.createTopMenu();
-            this.createTray();
+            this.mainWindow();
+            this.appMenu();
+            this.appTray();
         });
 
         app.on("before-quit", () => {
@@ -70,7 +85,7 @@ export default class Main {
 
         ipcMain.on("getTutorial", () => {
             this.window.webContents.send("openTutorial", {
-                tutorial: this.createTutorialWindow(),
+                tutorial: this.tutorial.createTutorialWindow(this.window),
             });
         });
 
@@ -93,9 +108,12 @@ export default class Main {
     }
 
     private observeFolder() {
+        this.observer.removeAllListeners();
+
         this.observer.on("file-added", (log) => {
             logFile.info(log.message);
         });
+
         this.observer.watchFolder(this.configFile.getCurrentCloudFolder());
     }
 
@@ -144,9 +162,9 @@ export default class Main {
     }
 
     // Function used to create and manage the options of the app main window.
-    private createMainWindow() {
+    private mainWindow() {
 
-        const windowOptions: Electron.BrowserWindowConstructorOptions = {
+        const windowOptions: BrowserWindowConstructorOptions = {
             // Default title but defined on HTML.
             title: "Assistant for your PC",
             icon: this.icon,
@@ -168,9 +186,9 @@ export default class Main {
         };
 
         // Create the window.
-        this.window = new BrowserWindow(windowOptions);
-        this.window.loadFile(this.mainIndex);
+        this.window = this.createWindow(windowOptions, this.mainIndex);
 
+        // Main window Events
         this.window.on("ready-to-show", () => {
             this.window.show();
         });
@@ -188,13 +206,13 @@ export default class Main {
               this.minimizedNotification().show();
             }
             return false;
-          });
+        });
 
     }
 
     // Function to create Tray
-    private createTray() {
-        const contextMenu =  Menu.buildFromTemplate([
+    private appTray() {
+        const contextMenu: Menu =  Menu.buildFromTemplate([
             {
                 label: "Abrir", type: "normal",
                 click: () => {
@@ -209,11 +227,9 @@ export default class Main {
                     this.exitApp();
                 },
             },
-          ]);
+        ]);
 
-        this.tray = new Tray(this.icon);
-        this.tray.setToolTip("Application for google assistant to control your PC.");
-        this.tray.setContextMenu(contextMenu);
+        this.tray = this.createTray(this.icon, contextMenu, this.trayMessage);
 
         this.tray.on("double-click", () => {
             this.window.show();
@@ -221,79 +237,10 @@ export default class Main {
         });
     }
 
-    // Function that notify the user when the app is minimized.
-    private minimizedNotification(): Notification {
-        // TODO : Check the notification
-        const notification = new Notification({
-            body: "La app sigue ejecutandose",
-            hasReply: false,
-            icon: this.icon,
-            title: "Google Assistant For PC",
-            silent: true,
-        });
-
-        notification.on("click", () => {
-            this.window.show();
-            this.window.focus();
-        });
-        return notification;
-    }
-
-    private createTutorialWindow() {
-        const windowOptions: Electron.BrowserWindowConstructorOptions = {
-            // Default title but defined on HTML.
-            title: "Tutorial",
-            parent: this.window,
-            icon: this.icon,
-            width: 600,
-            height: 400,
-            minWidth: 600,
-            minHeight: 400,
-            maxWidth: 600,
-            maxHeight: 400,
-            maximizable: false,
-            minimizable: false,
-            center: true,
-            autoHideMenuBar: true,
-            show: false,
-            webPreferences: {
-                // devTools: false,
-                nodeIntegration: true,
-                preload: path.join(__dirname, "../preload.js"),
-            },
-        };
-
-        if (this.canOpenTutorial) {
-            this.tutorialWindow = new BrowserWindow(windowOptions);
-            this.tutorialWindow.removeMenu();
-            this.tutorialWindow.setAlwaysOnTop(true);
-            this.tutorialWindow.loadFile(this.tutorialIndex);
-
-            this.tutorialWindow.on("ready-to-show", () => {
-                this.tutorialWindow.show();
-            });
-
-            this.tutorialWindow.on("close", (event) => {
-                this.tutorialWindow = null;
-                this.canOpenTutorial = true;
-            });
-            this.canOpenTutorial = false;
-        }
-
-    }
-
     // Function used to create the top menu used for all the windows.
-    // tslint:disable-next-line: member-ordering
-    public createTopMenu() {
+    private appMenu() {
 
-        const menu = Menu.buildFromTemplate([
-            {
-                label: "Open Dev Tools",
-                accelerator: "CmdOrCtrl+Shift+D",
-                click: () => {
-                    this.window.webContents.openDevTools();
-                  },
-            },
+        const menu: Menu = Menu.buildFromTemplate([
             {
                 label: "Get App Info",
                 accelerator: "CmdOrCtrl+Shift+F",
@@ -304,7 +251,7 @@ export default class Main {
             {
                 label: "Tutorial",
                 click: () => {
-                    this.createTutorialWindow();
+                    this.tutorial.createTutorialWindow(this.window);
                 },
             },
             {
@@ -335,16 +282,50 @@ export default class Main {
                 },
             },
         ]);
+        
+        
+        if(isDev) {
+            menu.append(new MenuItem(
+                    {
+                    label: "Open Dev Tools",
+                    accelerator: "CmdOrCtrl+Shift+D",
+                    click: () => {
+                        this.window.webContents.openDevTools();
+                    },
+            },));
+        }
 
-        Menu.setApplicationMenu(menu);
+        this.applicationMenu(menu);
     }
 
-    // tslint:disable-next-line: member-ordering
+    // Function that notify the user when the app is minimized.
+    private minimizedNotification(): Notification {
+        // TODO : Use electron-windows-notifications
+        const notification: Notification = new Notification({
+            body: "La app sigue ejecutandose",
+            hasReply: false,
+            icon: this.icon,
+            title: "Google Assistant For PC",
+            silent: true,
+        });
+
+        notification.on("click", () => {
+            this.window.show();
+            this.window.focus();
+        });
+        return notification;
+    }
+
     public exitApp() {
         this.startOnTurnOn();
         this.canExit = true;
-        this.tray.destroy();
+        this.destroyTray(this.tray);
+        
+        this.tray = null;
+        
+        this.window.close();
         this.window = null;
+        
         app.quit();
     }
 }
