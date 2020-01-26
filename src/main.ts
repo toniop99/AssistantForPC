@@ -1,5 +1,4 @@
 import Main from "./controllers/main.controller";
 
-const mainProccess = new Main();
+const mainProcess = Main.getInstace();
 
-mainProccess.startApp();

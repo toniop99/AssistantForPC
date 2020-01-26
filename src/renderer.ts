@@ -102,10 +102,6 @@ function onStart() {
 }
 onStart();
 
-function restartApp() {
-  remote.app.relaunch();
-  remote.app.exit();
-}
 
 ipcRenderer.on("appInfo", (event, data) => {
   ipcRenderer.removeAllListeners("appInfo");
